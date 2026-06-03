@@ -3,11 +3,11 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-local-key-for-dev')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-coursework-123')
 
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == ['True', '1']
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['127.0.1', 'localhost', '.onrender.com']
+ALLOWED_HOSTS = ['127.0.1', 'localhost', '.onrender.com', '.pythonanywhere.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
