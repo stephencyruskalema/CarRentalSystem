@@ -7,7 +7,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-local-key-for-dev')
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['127.0.1', 'localhost', 'Drivehub.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.1', 'localhost', '.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
