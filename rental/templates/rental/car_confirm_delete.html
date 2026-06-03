@@ -1,0 +1,19 @@
+{% extends 'rental/base.html' %}
+{% block title %}Delete Car - Admin{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:2rem auto;">
+<div class="card">
+    <div class="card-header"><h2> Confirm Delete</h2></div>
+    <div class="card-body">
+        <p style="margin-bottom:1.5rem;">Are you sure you want to delete <strong>{{ car.year }} {{ car.make }} {{ car.model }}</strong> ({{ car.license_plate }})? This action cannot be undone.</p>
+        <div class="flex gap-1">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+            <a href="{% url 'admin_cars' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

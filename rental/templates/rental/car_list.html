@@ -1,0 +1,247 @@
+{% extends 'rental/base.html' %}
+{% load static %}
+
+{% block title %}Browse Cars - DriveHub{% endblock %}
+
+{% block extra_styles %}
+<style>
+.filters { 
+    background: white; 
+    padding: 1.25rem 1.75rem; 
+    border-radius: 12px; 
+    box-shadow: var(--shadow); 
+    margin-bottom: 2.5rem; 
+}
+
+.filters-form {
+    display: flex; 
+    gap: 1rem; 
+    align-items: center; 
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.filters-form input, 
+.filters-form select { 
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.filters-form input:focus, 
+.filters-form select:focus {
+    border-color: #1a56db;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+}
+
+.filters-form input { 
+    flex: 2; 
+    min-width: 240px; 
+}
+
+.filters-form select { 
+    flex: 1; 
+    min-width: 180px;
+    padding-right: 2.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.1rem;
+}
+
+.filters-form select:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.filters-form select option {
+    color: #1e293b;
+    padding: 0.75rem;
+    background: white;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.filter-actions .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.car-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 2rem; 
+}
+
+.car-card { 
+    background: white; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: var(--shadow); 
+    transition: transform .2s, box-shadow .2s; 
+}
+
+.car-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 8px 24px rgba(0,0,0,.12); 
+}
+
+.car-img { 
+    width: 100%; 
+    height: 180px; 
+    object-fit: cover; 
+    background: #0f172a; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.car-body { 
+    padding: 1.25rem; 
+}
+
+.car-name { 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    margin-bottom: .5rem; 
+    color: #1e293b; 
+}
+
+.car-meta { 
+    display: flex; 
+    gap: .5rem; 
+    font-size: .8rem; 
+    color: var(--gray); 
+    margin-bottom: 1.25rem; 
+    flex-wrap: wrap; 
+}
+
+.car-meta span { 
+    background: #f1f5f9; 
+    padding: .25rem .6rem; 
+    border-radius: 6px; 
+    font-weight: 500; 
+}
+
+.car-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-top: 1px solid #f1f5f9; 
+    padding-top: 1rem; 
+}
+
+.car-price { 
+    color: var(--primary); 
+    font-weight: 700; 
+    font-size: 1.2rem; 
+}
+
+.empty-state { 
+    text-align: center; 
+    padding: 5rem 2rem; 
+    color: var(--gray); 
+}
+
+.empty-state-img { 
+    max-height: 180px; 
+    width: auto; 
+    object-fit: contain; 
+    margin-bottom: 1.5rem; 
+}
+
+.empty-state p { 
+    font-size: 1.1rem; 
+    max-width: 400px; 
+    margin: 0 auto; 
+    line-height: 1.6; 
+}
+
+@media(max-width: 768px) {
+    .filters-form { flex-direction: column; align-items: stretch; }
+    .filters-form input, .filters-form select, .filter-actions, .filter-actions .btn { width: 100%; }
+    .filter-actions { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-between flex-center mb-3">
+    <h1 style="font-size: 1.75rem; font-weight: 700;">Available Cars</h1>
+</div>
+
+<div class="filters">
+    <form method="get" class="filters-form">
+        <input type="text" name="search" placeholder="Search make or model..." value="{{ search_query }}">
+        
+        <select name="category">
+            <option value="">All Categories</option>
+            {% for val, label in categories %}
+            <option value="{{ val }}" {% if current_category == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            {% if current_category or search_query %}
+            <a href="{% url 'car_list' %}" class="btn btn-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% if cars %}
+<div class="car-grid">
+    {% for car in cars %}
+    <div class="car-card">
+        <div class="car-img">
+            {% if car.image_url %}
+                <img src="{{ car.image_url }}" alt="{{ car.make }} {{ car.model }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+                <img src="{% static 'rental/DHLogo.png' %}" alt="DriveHub Logo" style="max-height:120px;max-width:80%;object-fit:contain;">
+            {% endif %}
+        </div>
+        <div class="car-body">
+            <div class="car-name">{{ car.year }} {{ car.make }} {{ car.model }}</div>
+            <div class="car-meta">
+                <span>{{ car.get_category_display }}</span>
+                <span>{{ car.seats }} seats</span>
+                <span>{{ car.transmission }}</span>
+                <span>{{ car.fuel_type }}</span>
+            </div>
+            <div class="car-footer">
+                <div class="car-price">${{ car.daily_price }}<span style="font-weight:400;font-size:.85rem;color:var(--gray);">/day</span></div>
+                <div style="display:flex;gap:.5rem;">
+                    <a href="{% url 'car_detail' car.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.4rem 0.8rem;">Details</a>
+                    <a href="{% url 'book_car' car.pk %}" class="btn btn-primary btn-sm" style="padding: 0.4rem 0.8rem;">Book</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <img src="{% static 'rental/search.png' %}" alt="Search image.png" class="empty-state-img">
+    <p>Try adjusting your filters or <a href="{% url 'car_list' %}" style="color: var(--primary); font-weight: 600; text-decoration: underline;">view all cars</a>.</p>
+</div>
+{% endif %}
+{% endblock %}

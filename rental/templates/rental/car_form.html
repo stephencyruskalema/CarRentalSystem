@@ -1,0 +1,168 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Vehicle{% else %}Add New Fleet Vehicle{% endif %} - DriveHub{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto 3rem auto;
+    }
+
+    .form-header-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+    .form-header-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 2.5rem;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-group label {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 1rem;
+        color: #1e293b;
+        background-color: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus, 
+    .form-group select:focus, 
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 1.5rem;
+        margin-top: 2rem;
+    }
+    .form-actions .btn {
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .errorlist {
+        color: var(--danger);
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    @media(max-width: 640px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: span 1; }
+        .form-header-box { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        .form-actions { flex-direction: column-reverse; }
+        .form-actions .btn { width: 100%; text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    
+    <div class="form-header-box">
+        <h1 class="form-header-title">
+            {% if form.instance.pk %}
+                Edit Fleet Vehicle Details
+            {% else %}
+                Add New Fleet Vehicle
+            {% endif %}
+        </h1>
+        <a href="{% url 'admin_cars' %}" class="btn btn-secondary btn-sm">← Back to Fleet</a>
+    </div>
+
+    <div class="form-card">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errorlist">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-grid">
+                {% for field in form %}
+                    <div class="form-group {% if field.name == 'image_url' or field.field.widget.input_type == 'textarea' %}full-width{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <span style="color: var(--danger); font-size: 0.8rem; font-weight: 600;">{{ field.errors.0 }}</span>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small style="color: var(--gray); font-size: 0.8rem;">{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'admin_cars' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">
+                    {% if form.instance.pk %}Save Changes{% else %}Add Vehicle to Fleet{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

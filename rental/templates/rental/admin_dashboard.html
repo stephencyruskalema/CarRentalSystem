@@ -1,0 +1,233 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}Admin Dashboard - DriveHub{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .dashboard-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1.5rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem; 
+    }
+    .dashboard-sticker {
+        height: 85px; 
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0px 2px 6px rgba(0,0,0,0.1)); 
+    }
+    .dashboard-title-text {
+        font-size: 1.8rem; 
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+    }
+    .welcome-badge {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.6rem 1.2rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+
+    .stat-grid { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 1.5rem; 
+        margin-bottom: 2.5rem; 
+    }
+    .stat-card { 
+        background: white; 
+        border-radius: 12px; 
+        padding: 1.5rem; 
+        box-shadow: var(--shadow); 
+        border-left: 5px solid;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .stat-card.blue  { border-color: var(--primary); }
+    .stat-card.green { border-color: var(--success); }
+    .stat-card.amber { border-color: var(--warning); }
+    .stat-card.red   { border-color: var(--danger); }
+    .stat-value { font-size: 2.25rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 0.25rem; }
+    .stat-label { color: var(--gray); font-size: .875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .admin-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start; }
+    
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    .card-header {
+        padding: 1.25rem 1.5rem;
+        background: #fafafa;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .card-header h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 0; }
+    th { background: #f8fafc; color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding: 1rem 1.5rem; text-align: left; }
+    td { padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.925rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    
+    .action-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+    .action-stack .btn {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1rem;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .action-stack .btn:active {
+        transform: scale(0.98);
+    }
+
+    .btn-action-icon {
+        height: 24px;
+        width: 24px;
+        object-fit: contain;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .icon-invert {
+        filter: brightness(0) invert(1);
+    }
+
+    @media(max-width:1024px){ .admin-grid { grid-template-columns: 1fr; } }
+    @media(max-width:768px){ .stat-grid{grid-template-columns: repeat(2, 1fr);} }
+    @media(max-width:480px){ 
+        .stat-grid{grid-template-columns: 1fr;} 
+        .dashboard-header-container { flex-direction: column; gap: 1.25rem; align-items: flex-start; padding: 1.5rem; } 
+        .dashboard-sticker { height: 70px; } 
+    }
+</style>
+{% endblock %}
+
+{% load static %}
+{% block content %}
+<div class="dashboard-header-container">
+    <div class="header-left">
+        <img src="{% static 'rental/admin_dashboard.png' %}" alt="Dashboard Management Icon" class="dashboard-sticker">
+        <h1 class="dashboard-title-text">Admin Dashboard</h1>
+    </div>
+    <div class="welcome-badge">
+        Welcome back, {{ user.first_name|default:user.username }}
+    </div>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card blue">
+        <div class="stat-value">{{ total_cars }}</div>
+        <div class="stat-label">Total Fleet</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-value">{{ available_cars }}</div>
+        <div class="stat-label">Ready To Rent</div>
+    </div>
+    <div class="stat-card amber">
+        <div class="stat-value">{{ pending_bookings }}</div>
+        <div class="stat-label">Awaiting Review</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-value">{{ approved_bookings }}</div>
+        <div class="stat-label">Active Bookings</div>
+    </div>
+</div>
+
+<div class="admin-grid">
+    <div class="card">
+        <div class="card-header flex flex-between flex-center">
+            <h3>Recent Booking Transactions</h3>
+            <a href="{% url 'admin_bookings' %}" class="btn btn-secondary btn-sm">See Full History</a>
+        </div>
+        <div class="card-body" style="padding:0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Reference</th>
+                        <th>Customer Profile</th>
+                        <th>Assigned Vehicle</th>
+                        <th>Transaction Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for b in recent_bookings %}
+                <tr>
+                    <td style="font-weight: 600; color: #64748b;">#{{ b.pk }}</td>
+                    <td style="font-weight: 600;">{{ b.user.get_full_name|default:b.user.username }}</td>
+                    <td>{{ b.car.make }} {{ b.car.model }}</td>
+                    <td><span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted" style="padding: 3rem 1.5rem;">
+                        No system booking logs found in database.
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>System Management Actions</h3>
+        </div>
+        <div class="card-body" style="padding: 1.5rem;">
+            <div class="action-stack">
+                <a href="{% url 'car_create' %}" class="btn btn-success">
+                    <img src="{% static 'rental/new_car.png' %}" alt="Add Car Graphic Asset image_3.png" class="btn-action-icon icon-invert">
+                    <span>Add New Fleet Vehicle</span>
+                </a>
+                
+                <a href="{% url 'admin_bookings' %}?status=pending" class="btn btn-warning" style="color: #1e293b;">
+                    <img src="{% static 'rental/pending.png' %}" alt="Hourglass Asset image_2.png" class="btn-action-icon">
+                    <span>Review Pending Bookings</span>
+                </a>
+                
+                <a href="{% url 'admin_cars' %}" class="btn btn-primary">
+                    <img src="{% static 'rental/DHLogo.png' %}" alt="Manage Fleet Icon" class="btn-action-icon icon-invert">
+                    <span>Manage Active Fleet</span>
+                </a>
+                
+                <a href="{% url 'admin_feedback' %}" class="btn btn-secondary" style="justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <img src="{% static 'rental/contact.png' %}" alt="Contact Icon" class="btn-action-icon icon-invert">
+                        <span>Customer Feedback Messages</span>
+                    </div>
+                    {% if unread_feedback %}
+                        <span class="badge badge-pending" style="margin: 0;">{{ unread_feedback }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

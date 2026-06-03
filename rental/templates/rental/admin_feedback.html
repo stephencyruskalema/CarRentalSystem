@@ -1,0 +1,23 @@
+{% extends 'rental/base.html' %}
+{% block title %}Feedback - Admin{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;margin-bottom:1.5rem;">Customer Feedback</h1>
+{% if feedbacks %}
+<div style="display:flex;flex-direction:column;gap:1rem;">
+    {% for fb in feedbacks %}
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <strong>{{ fb.subject }}</strong>
+                <span class="text-muted" style="font-size:.85rem;margin-left:.75rem;">from {{ fb.name }} ({{ fb.email }})</span>
+            </div>
+            <small class="text-muted">{{ fb.created_at|date:"M d, Y H:i" }}</small>
+        </div>
+        <div class="card-body">{{ fb.message }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card"><div class="card-body text-center" style="padding:3rem;"><div style="font-size:3rem;">💬</div><p class="text-muted mt-1">No feedback submissions yet.</p></div></div>
+{% endif %}
+{% endblock %}

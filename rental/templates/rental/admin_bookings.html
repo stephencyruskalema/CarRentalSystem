@@ -1,0 +1,214 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}Manage Bookings - Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .bookings-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1.5rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.75rem;
+    }
+    .bookings-sticker {
+        height: 95px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.12));
+    }
+    .bookings-title-text {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 1.25rem 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.75rem;
+    }
+    .filter-form {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .filter-label {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .form-select-custom {
+        padding: 0.6rem 2.5rem 0.6rem 1rem;
+        font-size: 0.95rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background-color: #fff;
+        color: #1e293b;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .form-select-custom:focus {
+        border-color: var(--primary);
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 0; }
+    th { 
+        background: #f8fafc; 
+        color: #64748b; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        letter-spacing: 0.5px; 
+        padding: 1.1rem 1.5rem; 
+        text-align: left; 
+    }
+    td { 
+        padding: 1.2rem 1.5rem; 
+        border-bottom: 1px solid #f1f5f9; 
+        color: #334155; 
+        font-size: 0.925rem; 
+        vertical-align: middle; 
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background-color: #f8fafc; }
+
+    .actions-cell {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        white-space: nowrap;
+    }
+    .actions-cell .btn {
+        padding: 0.45rem 0.85rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    @media(max-width: 900px) {
+        table, thead, tbody, th, td, tr { display: block; }
+        thead { display: none; }
+        tr { border-bottom: 2px solid #e2e8f0; padding: 1rem 0; }
+        td { border-bottom: none; padding: 0.5rem 1.5rem; text-align: right; display: flex; justify-content: space-between; }
+        td::before { content: attr(data-label); font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.75rem; }
+        .actions-cell { justify-content: flex-end; }
+        .bookings-header-container { flex-direction: column; gap: 1.25rem; align-items: flex-start; padding: 1.5rem; }
+        .bookings-sticker { height: 75px; }
+    }
+</style>
+{% endblock %}
+
+{% load static %}
+{% block content %}
+<div class="bookings-header-container">
+    <div class="header-left">
+        <img src="{% static 'rental/all_bookings.png' %}" alt="All System Bookings" class="bookings-sticker">
+        <h1 class="bookings-title-text">All Bookings</h1>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form method="get" class="filter-form">
+        <label class="filter-label">Filter by status:</label>
+        <select name="status" class="form-select-custom" onchange="this.form.submit()">
+            <option value="">All Statuses</option>
+            {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% if current_status %}
+            <a href="{% url 'admin_bookings' %}" class="btn btn-secondary btn-sm" style="border-radius: 6px; padding: 0.5rem 1rem;">Clear Filters</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ref ID</th>
+                    <th>Customer info</th>
+                    <th>Assigned Car</th>
+                    <th>Rental Dates</th>
+                    <th>Duration</th>
+                    <th>Total gross</th>
+                    <th>State</th>
+                    <th style="text-align: right; padding-right: 2.5rem;">System Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for b in bookings %}
+            <tr>
+                <td data-label="Ref ID" style="font-weight: 600; color: #64748b;">#{{ b.pk }}</td>
+                <td data-label="Customer info">
+                    <strong style="color: #0f172a; font-size: 0.95rem;">{{ b.user.get_full_name|default:b.user.username }}</strong><br>
+                    <small style="color: #64748b; font-size: 0.8rem;">{{ b.user.email }}</small>
+                </td>
+                <td data-label="Assigned Car" style="font-weight: 500;">{{ b.car.year }} {{ b.car.make }} {{ b.car.model }}</td>
+                <td data-label="Rental Dates" style="color: #475569;">{{ b.start_date }} → {{ b.end_date }}</td>
+                <td data-label="Duration"><span class="badge badge-secondary" style="background:#f1f5f9; color:#334155;">{{ b.duration_days }} days</span></td>
+                <td data-label="Total gross" style="font-size: 1rem; color: #0f172a;"><strong style="font-weight: 700;">${{ b.total_price }}</strong></td>
+                <td data-label="State">
+                    <span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span>
+                </td>
+                <td data-label="System Actions" style="text-align: right; padding-right: 1.5rem;">
+                    <div class="actions-cell" style="justify-content: flex-end;">
+                        {% if b.status == 'pending' %}
+                        <form method="post" action="{% url 'approve_booking' b.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Approve</button>
+                        </form>
+                        <form method="post" action="{% url 'cancel_booking_admin' b.pk %}" style="display:inline;" onsubmit="return confirm('Cancel this booking?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Cancel</button>
+                        </form>
+                        {% elif b.status == 'approved' %}
+                        <form method="post" action="{% url 'cancel_booking_admin' b.pk %}" style="display:inline;" onsubmit="return confirm('Cancel this approved booking?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Cancel Ride</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted" style="font-size: 1.2rem; padding-right: 1rem;">—</span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted" style="padding: 4rem 2rem; font-size: 1rem;">
+                    No reservation records found matching current criteria.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

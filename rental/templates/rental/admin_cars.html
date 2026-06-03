@@ -1,0 +1,179 @@
+{% extends 'rental/base.html' %}
+{% load static %}
+
+{% block title %}Fleet Management - Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .fleet-header-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 1rem 1.75rem; 
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+    .fleet-title-text {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .fleet-header-icon {
+        height: 36px;
+        width: 36px;
+        object-fit: contain;
+    }
+    .fleet-btn-icon {
+        height: 20px;
+        width: 20px;
+        object-fit: contain;
+    }
+    .icon-bright {
+        filter: brightness(1.3);
+    }
+
+    .fleet-header-box .btn {
+        padding: 0.55rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin: 0; 
+    }
+    th { 
+        background: #f8fafc; 
+        color: #64748b; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        letter-spacing: 0.5px; 
+        padding: 0.85rem 1.5rem; 
+        text-align: left; 
+        border-bottom: 1px solid #e2e8f0;
+    }
+    td { 
+        padding: 0.9rem 1.5rem; 
+        border-bottom: 1px solid #f1f5f9; 
+        color: #334155; 
+        font-size: 0.925rem; 
+        vertical-align: middle; 
+    }
+    tr:last-child td { 
+        border-bottom: none; 
+    }
+    tr:hover td { 
+        background-color: #f8fafc; 
+    }
+
+    .fleet-actions {
+        display: flex;
+        gap: 0.4rem;
+        justify-content: flex-end;
+    }
+    .fleet-actions .btn {
+        padding: 0.4rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.825rem;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    @media(max-width: 768px) {
+        table, thead, tbody, th, td, tr { display: block; }
+        thead { display: none; }
+        tr { border-bottom: 2px solid #e2e8f0; padding: 0.75rem 0; }
+        td { border-bottom: none; padding: 0.4rem 1.25rem; text-align: right; display: flex; justify-content: space-between; }
+        td::before { content: attr(data-label); font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.725rem; }
+        .fleet-actions { justify-content: flex-end; }
+        .fleet-header-box { padding: 1rem 1.25rem; }
+    }
+</style>
+{% endblock %}
+
+<div class="fleet-header-box">
+    <h1 class="fleet-title-text">
+        <img src="{% static 'rental/all_bookings.png' %}" alt="Fleet Management" class="fleet-header-icon">
+        <span>Fleet Management</span>
+    </h1>
+    <a href="{% url 'car_create' %}" class="btn btn-success">
+        <img src="{% static 'rental/new_car.png' %}" alt="Add" class="fleet-btn-icon icon-bright">
+        <span>Add Car</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehicle Details</th>
+                    <th>Classification</th>
+                    <th>License Plate</th>
+                    <th>Daily Rate</th>
+                    <th>Availability Status</th>
+                    <th style="text-align: right; padding-right: 2.25rem;">Management Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for car in cars %}
+            <tr>
+                <td data-label="Vehicle Details" style="font-weight: 700; color: #0f172a;">
+                    {{ car.year }} {{ car.make }} {{ car.model }}
+                </td>
+                <td data-label="Classification" style="color: #475569; font-weight: 500;">
+                    {{ car.get_category_display }}
+                </td>
+                <td data-label="License Plate" style="font-family: monospace; font-size: 0.95rem; font-weight: 600; color: #64748b;">
+                    {{ car.license_plate }}
+                </td>
+                <td data-label="Daily Rate" style="font-weight: 700; color: #0f172a;">
+                    ${{ car.daily_price }}
+                </td>
+                <td data-label="Availability Status">
+                    <span class="badge badge-{{ car.status }}">{{ car.get_status_display }}</span>
+                </td>
+                <td data-label="Management Actions">
+                    <div class="fleet-actions">
+                        <a href="{% url 'car_update' car.pk %}" class="btn btn-warning">
+                            Edit
+                        </a>
+                        <a href="{% url 'car_delete' car.pk %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this car from the fleet?');">
+                            Delete
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted" style="padding: 3rem 1.5rem; font-size: 0.95rem;">
+                    No cars available in the fleet catalog right now. <a href="{% url 'car_create' %}" style="font-weight: 600; color: var(--primary); text-decoration: underline;">Add one first!</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

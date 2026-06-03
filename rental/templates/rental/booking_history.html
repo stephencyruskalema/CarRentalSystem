@@ -1,0 +1,167 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}My Bookings - DriveHub{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .history-header-box {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        background: white;
+        padding: 1rem 1.75rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+    }
+    .history-sticker {
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.1));
+    }
+    .history-title-text {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin: 0; 
+    }
+    th { 
+        background: #f8fafc; 
+        color: #64748b; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        font-size: 0.75rem; 
+        letter-spacing: 0.5px; 
+        padding: 1rem 1.5rem;
+        text-align: left; 
+        border-bottom: 1px solid #e2e8f0;
+    }
+    td { 
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9; 
+        color: #334155; 
+        font-size: 0.925rem; 
+        vertical-align: middle; 
+    }
+    tr:last-child td { 
+        border-bottom: none; 
+    }
+    tr:hover td { 
+        background-color: #f8fafc; 
+    }
+
+    .empty-state-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .empty-sticker {
+        height: 120px; 
+        width: auto;
+        margin-bottom: 1.5rem;
+        object-fit: contain;
+    }
+    .empty-state-container h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    .empty-state-container p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+    }
+
+    @media(max-width: 768px) {
+        table, thead, tbody, th, td, tr { display: block; }
+        thead { display: none; }
+        tr { border-bottom: 2px solid #e2e8f0; padding: 0.75rem 0; }
+        td { border-bottom: none; padding: 0.4rem 1.25rem; text-align: right; display: flex; justify-content: space-between; }
+        td::before { content: attr(data-label); font-weight: 700; color: #64748b; text-transform: uppercase; font-size: 0.725rem; }
+        .history-header-box { padding: 1rem 1.25rem; gap: 1rem; }
+        .history-sticker { height: 55px; }
+    }
+</style>
+{% endblock %}
+
+{% load static %}
+{% block content %}
+
+<div class="history-header-box">
+    <img src="{% static 'rental/all_bookings.png' %}" alt="My Bookings Icon" class="history-sticker">
+    <h1 class="history-title-text">My Bookings</h1>
+</div>
+
+{% if bookings %}
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ref ID</th>
+                    <th>Vehicle Details</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Total Price</th>
+                    <th>Booking Status</th>
+                    <th style="text-align: right; padding-right: 2rem;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td data-label="Ref ID" style="font-weight: 600; color: #64748b;">#{{ booking.pk }}</td>
+                <td data-label="Vehicle Details">
+                    <strong style="color: #0f172a;">{{ booking.car.year }} {{ booking.car.make }} {{ booking.car.model }}</strong><br>
+                    <span style="font-family: monospace; font-size: 0.85rem; color: #64748b;">{{ booking.car.license_plate }}</span>
+                </td>
+                <td data-label="Start Date" style="font-weight: 500;">{{ booking.start_date }}</td>
+                <td data-label="End Date" style="font-weight: 500;">{{ booking.end_date }}</td>
+                <td data-label="Duration"><span class="badge badge-secondary" style="background:#f1f5f9; color:#334155; font-weight: 600;">{{ booking.duration_days }} days</span></td>
+                <td data-label="Total Price" style="font-size: 1rem; color: #0f172a;"><strong>${{ booking.total_price }}</strong></td>
+                <td data-label="Booking Status">
+                    <span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                </td>
+                <td data-label="Actions" style="text-align: right; padding-right: 1.5rem;">
+                    {% if booking.status == 'pending' %}
+                    <form method="post" action="{% url 'cancel_booking' booking.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking request?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" style="border-radius: 6px; padding: 0.4rem 0.85rem; font-weight: 600;">Cancel</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted" style="font-size: 1.1rem; padding-right: 1rem;">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body empty-state-container">
+        <img src="{% static 'rental/all_bookings.png' %}" alt="No Bookings" class="empty-sticker">
+        <h2>No bookings found</h2>
+        <p>You don't have any rental reservations scheduled yet. Ready to hit the open road?</p>
+        <a href="{% url 'car_list' %}" class="btn btn-primary" style="padding: 0.65rem 1.75rem; font-weight: 600; border-radius: 8px;">Browse Available Cars</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

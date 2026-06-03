@@ -1,0 +1,177 @@
+{% extends 'rental/base.html' %}
+
+{% block title %}DriveHub - Premium Car Rentals{% endblock %}
+
+{% block extra_styles %}
+<style>
+.hero { background: linear-gradient(135deg, #1e293b 0%, #1a56db 100%); color: white; padding: 4rem 2rem; border-radius: 12px; text-align: center; margin-bottom: 2.5rem; }
+.hero-logo { max-width: 320px; height: auto; margin-bottom: 1.5rem; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.3)); }
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+.hero p { font-size: 1.1rem; color: #cbd5e1; margin-bottom: 2rem; }
+.hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.hero-btns a { padding: .75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; }
+.btn-hero-primary { background: var(--secondary); color: #1e293b; }
+.btn-hero-secondary { background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3); }
+
+.search-filter-container {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 3rem;
+}
+.search-filter-form {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+}
+.search-group-input {
+    flex: 2; 
+    position: relative;
+}
+.filter-group-select {
+    flex: 1; 
+    min-width: 180px;
+}
+.search-filter-form input[type="text"],
+.search-filter-form select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background-color: #f8fafc;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+}
+.search-filter-form input[type="text"]:focus,
+.search-filter-form select :focus {
+    border-color: #1a56db;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+}
+.btn-filter-submit {
+    padding: 0.75rem 1.5rem;
+    background: #1a56db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+.btn-filter-submit:hover {
+    background: #1e40af;
+}
+
+.section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+.car-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+.car-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.car-img { width: 100%; height: 160px; object-fit: cover; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.car-info { padding: 1rem; }
+.car-name { font-weight: 700; margin-bottom: .25rem; }
+.car-price { color: var(--primary); font-weight: 700; font-size: 1.1rem; }
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+.feature { background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: var(--shadow); }
+.feature-icon-wrapper { height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem; }
+.feature-icon-img { max-height: 75px; width: auto; object-fit: contain; }
+.feature h3 { margin-bottom: .5rem; }
+.feature p { color: var(--gray); font-size: .9rem; }
+
+@media(max-width:768px){ 
+    .hero h1{font-size:1.8rem;} 
+    .features{grid-template-columns:1fr;} 
+    /* Stack elements beautifully on small viewports */
+    .search-filter-form { flex-direction: column; gap: 0.75rem; }
+    .filter-group-select, .search-group-input, .btn-filter-submit { width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% load static %}
+{% block content %}
+<div class="hero">
+    <div>
+        <img src="{% static 'rental/DHLogo.png' %}" alt="DriveHub Banner Logo" class="hero-logo" style="max-width:280px; height:auto;">
+    </div>
+    <h1>Rent Your Perfect Car Today</h1>
+    <p>Choose from our wide selection of vehicles. Easy booking, transparent pricing, and excellent service.</p>
+    <div class="hero-btns">
+        <a href="{% url 'register' %}" class="btn-hero-primary">Get Started Free</a>
+        <a href="{% url 'login' %}" class="btn-hero-secondary">Sign In</a>
+    </div>
+</div>
+<div class="search-filter-container">
+    <form method="GET" action="{% url 'car_list' %}" class="search-filter-form">
+        <div class="search-group-input">
+            <input type="text" name="q" placeholder="Search by make, model, or keywords..." value="{{ request.GET.q }}">
+        </div>
+        
+        <div class="filter-group-select">
+            <select name="category">
+                <option value="">All Categories</option>
+                <option value="suv" {% if request.GET.category == 'suv' %}selected{% endif %}>SUVs</option>
+                <option value="sedan" {% if request.GET.category == 'sedan' %}selected{% endif %}>Sedans</option>
+                <option value="luxury" {% if request.GET.category == 'luxury' %}selected{% endif %}>Luxury Cars</option>
+                <option value="truck" {% if request.GET.category == 'truck' %}selected{% endif %}>Trucks / Pickups</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-filter-submit">Find Cars</button>
+    </form>
+</div>
+
+<div class="features">
+    <div class="feature">
+        <div class="feature-icon-wrapper">
+            <img src="{% static 'rental/easy_booking.png' %}" alt="Easy Booking Icon" class="feature-icon-img">
+        </div>
+        <h3>Easy Booking</h3>
+        <p>Reserve your car in minutes with our simple booking system.</p>
+    </div>
+    
+    <div class="feature">
+        <div class="feature-icon-wrapper">
+            <img src="{% static 'rental/best_price.png' %}" alt="Best Prices Icon" class="feature-icon-img">
+        </div>
+        <h3>Best Prices</h3>
+        <p>Competitive daily rates with no hidden fees or charges.</p>
+    </div>
+    
+    <div class="feature">
+        <div class="feature-icon-wrapper">
+            <img src="{% static 'rental/instant_approval.png' %}" alt="Instant Approval Icon" class="feature-icon-img">
+        </div>
+        <h3>Instant Approval</h3>
+        <p>Get your booking approved quickly by our admin team.</p>
+    </div>
+</div>
+
+{% if featured_cars %}
+<h2 class="section-title">Available Cars</h2>
+<div class="grid-3" style="margin-bottom:2rem;">
+    {% for car in featured_cars %}
+    <div class="car-card">
+        <div class="car-img">
+            {% if car.image_url %}
+                <img src="{{ car.image_url }}" alt="{{ car.make }} {{ car.model }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+                <img src="{% static 'rental/DHLogo.png' %}" alt="DriveHub Logo" style="max-height:100px;max-width:80%;object-fit:contain;">
+            {% endif %}
+        </div>
+        <div class="car-info">
+            <div class="car-name">{{ car.make }} {{ car.model }}</div>
+            <div class="text-muted" style="font-size:.85rem;margin-bottom:.5rem;">{{ car.get_category_display }} • {{ car.status }}</div>
+            <div class="car-price">${{ car.daily_price }}/day</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="text-center">
+    <a href="{% url 'register' %}" class="btn btn-primary">Register to Book a Car →</a>
+</div>
+{% endif %}
+{% endblock %}

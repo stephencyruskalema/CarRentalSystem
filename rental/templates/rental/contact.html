@@ -1,0 +1,97 @@
+{% extends 'rental/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - DriveHub{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 3rem auto; padding: 0 1.5rem; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    
+    <div style="background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); border: 1px solid #e0e0e0; overflow: hidden; padding: 2.5rem 2rem;">
+        
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <img src="{% static 'rental/DHLogo.png' %}" alt="DriveHub Logo" style="max-width: 190px; height: auto; display: inline-block;">
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <img src="{% static 'rental/contact.png' %}" alt="Contact Icon" style="width: 32px; height: 32px; object-fit: contain; opacity: 0.85;">
+            <h2 style="margin: 0; color: #222222; font-size: 1.6rem; font-weight: 700;">
+                Contact Us
+            </h2>
+        </div>
+
+        <p style="text-align: center; margin: 0 0 2rem 0; color: #666666; font-size: 0.95rem;">
+            Have a question or feedback? We'd love to hear from you.
+        </p>
+        
+        <form method="post" novalidate style="display: block; width: 100%;">
+            {% csrf_token %}
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444444; font-size: 0.95rem; text-align: left;">Your Name *</label>
+                    <div class="custom-form-input">
+                        {{ form.name }}
+                    </div>
+                    {% if form.name.errors %}<div style="color: #ff3b30; font-size: 0.85rem; margin-top: 0.3rem; text-align: left;">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444444; font-size: 0.95rem; text-align: left;">Email *</label>
+                    <div class="custom-form-input">
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}<div style="color: #ff3b30; font-size: 0.85rem; margin-top: 0.3rem; text-align: left;">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1.25rem; display: block; width: 100%;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444444; font-size: 0.95rem; text-align: left;">Subject *</label>
+                <div class="custom-form-input">
+                    {{ form.subject }}
+                </div>
+                {% if form.subject.errors %}<div style="color: #ff3b30; font-size: 0.85rem; margin-top: 0.3rem; text-align: left;">{{ form.subject.errors.0 }}</div>{% endif %}
+            </div>
+            
+            <div style="margin-bottom: 2rem; display: block; width: 100%;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #444444; font-size: 0.95rem; text-align: left;">Message *</label>
+                <div class="custom-form-input">
+                    {{ form.message }}
+                </div>
+                {% if form.message.errors %}<div style="color: #ff3b30; font-size: 0.85rem; margin-top: 0.3rem; text-align: left;">{{ form.message.errors.0 }}</div>{% endif %}
+            </div>
+            
+            <button type="submit" style="width: 100%; background: #0040df; color: #ffffff; border: none; padding: 0.95rem; font-size: 1.05rem; font-weight: 700; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 64, 223, 0.2); transition: all 0.2s ease;">
+                Send Message
+            </button>
+        </form>
+        
+    </div>
+</div>
+
+<style>
+    .custom-form-input input,
+    .custom-form-input textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.85rem 1rem !important;
+        border: 1px solid #cccccc !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+        font-size: 1rem !important;
+        background-color: #fafafa !important;
+        transition: all 0.2s ease !important;
+        display: block !important;
+        font-family: inherit;
+    }
+    .custom-form-input textarea {
+        min-height: 120px !important;
+        resize: vertical !important;
+    }
+    .custom-form-input input:focus,
+    .custom-form-input textarea:focus {
+        border-color: #0040df !important;
+        background-color: #ffffff !important;
+        outline: none !important;
+        box-shadow: 0 0 0 4px rgba(0, 64, 223, 0.15) !important;
+    }
+</style>
+{% endblock %}
